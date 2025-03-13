@@ -868,6 +868,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mantinex/dev-icons@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@mantinex/dev-icons@npm:1.1.0"
+  peerDependencies:
+    "@mantine/core": ">=7.0.0"
+    "@mantine/hooks": ">=7.0.0"
+    react: ^18.x || ^19.x
+    react-dom: ^18.x || ^19.x
+  checksum: 10c0/a05cacf87beeafe25f4109235037fbc0611034b158e6270d0e0448980906bf99e3875c1d7ecc887c16ee735dd12d049194af0f17cd857a24f53d715d0cc576d9
+  languageName: node
+  linkType: hard
+
 "@next/env@npm:15.2.2":
   version: 15.2.2
   resolution: "@next/env@npm:15.2.2"
@@ -1047,6 +1059,24 @@ __metadata:
   dependencies:
     tslib: "npm:^2.8.0"
   checksum: 10c0/33002f74f6f885f04c132960835fdfc474186983ea567606db62e86acd0680ca82f34647e8e610f4e1e422d1c16fce729dde22cd3b797ab1fd9061a825dabca4
+  languageName: node
+  linkType: hard
+
+"@tabler/icons-react@npm:^3.31.0":
+  version: 3.31.0
+  resolution: "@tabler/icons-react@npm:3.31.0"
+  dependencies:
+    "@tabler/icons": "npm:3.31.0"
+  peerDependencies:
+    react: ">= 16"
+  checksum: 10c0/aceefe1b6c12a2e64921900f49c09c0c24bcd837dfb3d4274914065e33a5175944f1e25ce9a80d110272e5ae0fefc24062a38f1ec75a4ec79c63d40acb9d1d12
+  languageName: node
+  linkType: hard
+
+"@tabler/icons@npm:3.31.0":
+  version: 3.31.0
+  resolution: "@tabler/icons@npm:3.31.0"
+  checksum: 10c0/03fcfff0b705e1474030acee2ff0523bfa1fda7a29a33d031a9fd8e3b52ecc2e0380f9cf5e81bd054b30dc0acdb819b1e08ab746805be8d660934a08b2c3545e
   languageName: node
   linkType: hard
 
@@ -1896,6 +1926,70 @@ __metadata:
   languageName: node
   linkType: hard
 
+"app@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "app@workspace:."
+  dependencies:
+    "@biomejs/biome": "npm:1.9.4"
+    "@commitlint/cli": "npm:^19.6.1"
+    "@commitlint/config-conventional": "npm:^19.6.0"
+    "@eslint/eslintrc": "npm:^3"
+    "@mantine/carousel": "npm:^7.17.1"
+    "@mantine/charts": "npm:^7.17.1"
+    "@mantine/code-highlight": "npm:^7.17.1"
+    "@mantine/core": "npm:^7.17.1"
+    "@mantine/dates": "npm:^7.17.1"
+    "@mantine/dropzone": "npm:^7.17.1"
+    "@mantine/form": "npm:^7.17.1"
+    "@mantine/hooks": "npm:^7.17.1"
+    "@mantine/modals": "npm:^7.17.1"
+    "@mantine/notifications": "npm:^7.17.1"
+    "@mantine/nprogress": "npm:^7.17.1"
+    "@mantine/spotlight": "npm:^7.17.1"
+    "@mantine/tiptap": "npm:^7.17.1"
+    "@mantinex/dev-icons": "npm:^1.1.0"
+    "@next/eslint-plugin-next": "npm:^15.2.2"
+    "@next/third-parties": "npm:^15.2.2"
+    "@reduxjs/toolkit": "npm:^2.6.1"
+    "@tabler/icons-react": "npm:^3.31.0"
+    "@tailwindcss/postcss": "npm:^4"
+    "@tanstack/query-core": "npm:^5.67.3"
+    "@tanstack/react-query": "npm:^5.67.3"
+    "@tanstack/react-query-devtools": "npm:^5.67.3"
+    "@tiptap/core": "npm:^2.11.5"
+    "@tiptap/extension-link": "npm:^2.11.5"
+    "@tiptap/pm": "npm:^2.11.5"
+    "@tiptap/react": "npm:^2.11.5"
+    "@tiptap/starter-kit": "npm:^2.11.5"
+    "@types/node": "npm:^20"
+    "@types/react": "npm:^19"
+    "@types/react-dom": "npm:^19"
+    axios: "npm:^1.8.3"
+    dayjs: "npm:^1.11.13"
+    embla-carousel-react: "npm:^7.1.0"
+    eslint: "npm:^9"
+    eslint-config-next: "npm:15.2.2"
+    eslint-plugin-react-hooks: "npm:^5.2.0"
+    husky: "npm:^9.1.7"
+    lint-staged: "npm:^15.4.1"
+    mantine-form-zod-resolver: "npm:^1.1.0"
+    next: "npm:15.2.2"
+    next-seo: "npm:^6.6.0"
+    postcss: "npm:^8.5.3"
+    postcss-preset-mantine: "npm:^1.17.0"
+    postcss-simple-vars: "npm:^7.0.1"
+    react: "npm:^19.0.0"
+    react-dom: "npm:^19.0.0"
+    react-redux: "npm:^9.2.0"
+    recharts: "npm:2"
+    redux: "npm:^5.0.1"
+    redux-persist: "npm:^6.0.0"
+    tailwindcss: "npm:^4"
+    typescript: "npm:^5"
+    zod: "npm:^3.24.2"
+  languageName: unknown
+  linkType: soft
+
 "argparse@npm:^2.0.1":
   version: 2.0.1
   resolution: "argparse@npm:2.0.1"
@@ -2082,66 +2176,6 @@ __metadata:
   checksum: 10c0/9308baf0a7e4838a82bbfd11e01b1cb0f0cf2893bc1676c27c2a8c0e70cbae1c59120c3268517a8ae7fb6376b4639ef81ca22582611dbee4ed28df945134aaee
   languageName: node
   linkType: hard
-
-"base_fe@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "base_fe@workspace:."
-  dependencies:
-    "@biomejs/biome": "npm:1.9.4"
-    "@commitlint/cli": "npm:^19.6.1"
-    "@commitlint/config-conventional": "npm:^19.6.0"
-    "@eslint/eslintrc": "npm:^3"
-    "@mantine/carousel": "npm:^7.17.1"
-    "@mantine/charts": "npm:^7.17.1"
-    "@mantine/code-highlight": "npm:^7.17.1"
-    "@mantine/core": "npm:^7.17.1"
-    "@mantine/dates": "npm:^7.17.1"
-    "@mantine/dropzone": "npm:^7.17.1"
-    "@mantine/form": "npm:^7.17.1"
-    "@mantine/hooks": "npm:^7.17.1"
-    "@mantine/modals": "npm:^7.17.1"
-    "@mantine/notifications": "npm:^7.17.1"
-    "@mantine/nprogress": "npm:^7.17.1"
-    "@mantine/spotlight": "npm:^7.17.1"
-    "@mantine/tiptap": "npm:^7.17.1"
-    "@next/eslint-plugin-next": "npm:^15.2.2"
-    "@next/third-parties": "npm:^15.2.2"
-    "@reduxjs/toolkit": "npm:^2.6.1"
-    "@tailwindcss/postcss": "npm:^4"
-    "@tanstack/query-core": "npm:^5.67.3"
-    "@tanstack/react-query": "npm:^5.67.3"
-    "@tanstack/react-query-devtools": "npm:^5.67.3"
-    "@tiptap/extension-link": "npm:^2.11.5"
-    "@tiptap/pm": "npm:^2.11.5"
-    "@tiptap/react": "npm:^2.11.5"
-    "@tiptap/starter-kit": "npm:^2.11.5"
-    "@types/node": "npm:^20"
-    "@types/react": "npm:^19"
-    "@types/react-dom": "npm:^19"
-    axios: "npm:^1.8.3"
-    dayjs: "npm:^1.11.13"
-    embla-carousel-react: "npm:^7.1.0"
-    eslint: "npm:^9"
-    eslint-config-next: "npm:15.2.2"
-    eslint-plugin-react-hooks: "npm:^5.2.0"
-    husky: "npm:^9.1.7"
-    lint-staged: "npm:^15.4.1"
-    mantine-form-zod-resolver: "npm:^1.1.0"
-    next: "npm:15.2.2"
-    next-seo: "npm:^6.6.0"
-    postcss: "npm:^8.5.3"
-    postcss-preset-mantine: "npm:^1.17.0"
-    postcss-simple-vars: "npm:^7.0.1"
-    react: "npm:^19.0.0"
-    react-dom: "npm:^19.0.0"
-    react-redux: "npm:^9.2.0"
-    recharts: "npm:2"
-    redux-persist: "npm:^6.0.0"
-    tailwindcss: "npm:^4"
-    typescript: "npm:^5"
-    zod: "npm:^3.24.2"
-  languageName: unknown
-  linkType: soft
 
 "brace-expansion@npm:^1.1.7":
   version: 1.1.11

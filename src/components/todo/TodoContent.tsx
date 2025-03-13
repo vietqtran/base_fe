@@ -1,10 +1,9 @@
 'use client';
 
-import { useTodo } from '@/hooks';
+import { fetchTodo } from '@/services';
 import { useQuery } from '@tanstack/react-query';
 
 export default function TodoContent({ todoId }: { todoId: number }) {
-  const { fetchTodo } = useTodo();
   const {
     data: todo,
     isLoading,
