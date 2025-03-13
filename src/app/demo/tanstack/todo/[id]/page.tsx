@@ -17,16 +17,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const todo = await fetchTodo(todoId);
 
   return {
-    title: `Todo: ${todo?.title || "Todo Details"}`,
-    description: todo?.completed ? "Completed task" : "Pending task",
+    title: `Todo: ${todo?.title || 'Todo Details'}`,
+    description: todo?.completed ? 'Completed task' : 'Pending task',
     openGraph: {
-      title: `Todo: ${todo?.title || "Todo Details"}`,
-      description: todo?.completed ? "Completed task" : "Pending task",
+      title: `Todo: ${todo?.title || 'Todo Details'}`,
+      description: todo?.completed ? 'Completed task' : 'Pending task',
     },
   };
 }
 
-export default async function TodoPage({ params }: PageProps ) {
+export default async function TodoPage({ params }: PageProps) {
   const { id } = await params;
   const queryClient = getQueryClient();
   const todoId = parseInt(id, 10);
