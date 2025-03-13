@@ -67,7 +67,7 @@ instance.interceptors.response.use(
           return;
         }
         return instance(originalConfig);
-      } catch (refreshError: any) {
+      } catch (refreshError: unknown) {
         if (
           window.location.pathname !== '/auth/sign-in' &&
           window.location.pathname !== '/auth/sign-up'
