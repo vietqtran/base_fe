@@ -16,7 +16,9 @@
       "**/package-lock.json",
       "**/yarn.lock",
       "**/.yarn/**",
-      "**/.next"
+      "**/.next",
+      "cypress.config.ts",
+      "**/cypress/**"
     ]
   },
   "formatter": {
@@ -38,7 +40,8 @@
       "**/package-lock.json",
       "**/yarn.lock",
       "**/.yarn/**",
-      "**/.next"
+      "**/.next",
+      "cypress.config.ts"
     ]
   },
   "organizeImports": {
@@ -132,7 +135,9 @@
       "**/package-lock.json",
       "**/yarn.lock",
       "**/.yarn/**",
-      "**/.next"
+      "**/.next",
+      "cypress.config.ts",
+      "**/cypress/**"
     ]
   },
   "javascript": {

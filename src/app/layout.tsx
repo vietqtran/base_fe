@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-import '@mantine/core/styles.css';
 import './globals.css';
 
-import { MantineProvider, TanstackQueryProviders } from '@/providers';
+import { TanstackQueryProviders } from '@/providers';
 import React from 'react';
 
 export const metadata: Metadata = {
@@ -40,9 +39,7 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className='antialiased'>
-        <TanstackQueryProviders>
-          <MantineProvider>{children}</MantineProvider>
-        </TanstackQueryProviders>
+        <TanstackQueryProviders>{children}</TanstackQueryProviders>
       </body>
     </html>
   );
