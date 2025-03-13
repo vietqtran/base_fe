@@ -23,9 +23,6 @@ jobs:
         cache: 'yarn'
     - name: Enable Corepack
       run: corepack enable
-    - name: Create yarnrc file
-      run: |
-        echo "nodeLinker: node-modules" > .yarnrc.yml
     - name: Install dependencies
       run: yarn install
     - name: Build
