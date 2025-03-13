@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     >
       <div className='absolute inset-0 bg-white/40 backdrop-blur-sm'></div>
       <main className='relative z-10 flex min-h-screen flex-col items-center justify-center p-4'>
-        <div className='w-full max-w-md'>{children}</div>
+        <div className='w-full'>{children}</div>
       </main>
     </div>
   );

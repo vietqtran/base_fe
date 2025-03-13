@@ -1,26 +1,23 @@
 'use client';
 
-import { useDevice } from '@/hooks';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Alert,
-  Anchor,
-  Button,
-  Divider,
-  Group,
-  Paper,
-  PasswordInput,
-  SimpleGrid,
-  Stack,
-  Text,
-  TextInput,
-  Title,
-  Transition,
-} from '@mantine/core';
-import { useForm, zodResolver } from '@mantine/form';
-import { IconAlertCircle, IconLock, IconMail, IconUser, IconUserPlus } from '@tabler/icons-react';
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { AlertCircle, Github, Lock, Mail, User, UserPlus } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { GithubButton, GoogleButton } from '../common/Button/Social';
 
 const signupSchema = z
   .object({
@@ -44,19 +41,20 @@ const signupSchema = z
     path: ['confirmPassword'],
   });
 
+type FormValues = z.infer<typeof signupSchema>;
+
 export default function SignUpForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
-  const { isMobile } = useDevice();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const form = useForm({
-    validate: zodResolver(signupSchema),
-    initialValues: {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
       firstName: '',
       lastName: '',
       email: '',
@@ -65,13 +63,12 @@ export default function SignUpForm() {
     },
   });
 
-  async function onSubmit(values: typeof form.values) {
+  async function onSubmit(values: FormValues) {
     setIsLoading(true);
     setError(null);
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
       // router.push('/')
     } catch (err) {
       if (err instanceof Error) {
@@ -101,176 +98,189 @@ export default function SignUpForm() {
     }
   }
 
+  if (!mounted) return null;
+
   return (
-    <Transition mounted={mounted} transition='fade' duration={400} timingFunction='ease'>
-      {(styles) => (
-        <div style={styles}>
-          <Paper
-            radius='lg'
-            p={isMobile ? 'md' : 'xl'}
-            withBorder
-            className='w-full bg-white/95 shadow-xl transition-all duration-300 hover:shadow-2xl'
-          >
-            <div className='mb-6 text-center'>
-              <div className='mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-violet-100'>
-                <IconUserPlus className='h-6 w-6 text-violet-600' />
-              </div>
-              <Title order={2} className='text-center mb-1 text-gray-800'>
-                Create an account
-              </Title>
-              <Text c='dimmed' size='sm' ta='center'>
-                Enter your details to sign up
-              </Text>
+    <Card className='w-full bg-white/95 shadow-xl transition-all duration-300 hover:shadow-2xl'>
+      <CardHeader className='space-y-1'>
+        <div className='mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-violet-100'>
+          <UserPlus className='h-6 w-6 text-violet-600' />
+        </div>
+        <CardTitle className='text-center text-2xl'>Create an account</CardTitle>
+        <CardDescription className='text-center'>Enter your details to sign up</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {error && (
+          <Alert variant='destructive' className='mb-4'>
+            <AlertCircle className='h-4 w-4' />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+              <FormField
+                control={form.control}
+                name='firstName'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First Name</FormLabel>
+                    <FormControl>
+                      <div className='relative'>
+                        <User className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500' />
+                        <Input className='pl-9' placeholder='John' {...field} />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='lastName'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                      <div className='relative'>
+                        <User className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500' />
+                        <Input className='pl-9' placeholder='Doe' {...field} />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            {error && (
-              <Transition
-                mounted={!!error}
-                transition='slide-down'
-                duration={300}
-                timingFunction='ease'
-              >
-                {(styles) => (
-                  <Alert
-                    style={styles}
-                    icon={<IconAlertCircle size={16} />}
-                    title='Error'
-                    color='red'
-                    className='mb-4'
-                    variant='light'
-                  >
-                    {error}
-                  </Alert>
-                )}
-              </Transition>
-            )}
+            <FormField
+              control={form.control}
+              name='email'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <div className='relative'>
+                      <Mail className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500' />
+                      <Input className='pl-9' placeholder='name@example.com' {...field} />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <form onSubmit={form.onSubmit(onSubmit)}>
-              <Stack>
-                <SimpleGrid cols={{ base: 1, sm: 2 }}>
-                  <TextInput
-                    label='First Name'
-                    placeholder='John'
-                    leftSection={<IconUser size={16} />}
-                    {...form.getInputProps('firstName')}
-                    disabled={isLoading}
-                    className='transition-all duration-200'
-                    styles={{
-                      input: {
-                        transition: 'all 0.2s ease',
-                        '&:focus': {
-                          borderColor: 'var(--mantine-color-violet-6)',
-                          boxShadow: '0 0 0 3px rgba(139, 92, 246, 0.25)',
-                        },
-                      },
-                    }}
-                  />
-                  <TextInput
-                    label='Last Name'
-                    placeholder='Doe'
-                    leftSection={<IconUser size={16} />}
-                    {...form.getInputProps('lastName')}
-                    disabled={isLoading}
-                    className='transition-all duration-200'
-                    styles={{
-                      input: {
-                        transition: 'all 0.2s ease',
-                        '&:focus': {
-                          borderColor: 'var(--mantine-color-violet-6)',
-                          boxShadow: '0 0 0 3px rgba(139, 92, 246, 0.25)',
-                        },
-                      },
-                    }}
-                  />
-                </SimpleGrid>
+            <FormField
+              control={form.control}
+              name='password'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <div className='relative'>
+                      <Lock className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500' />
+                      <Input
+                        className='pl-9'
+                        type='password'
+                        placeholder='Create a strong password'
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <TextInput
-                  label='Email'
-                  placeholder='name@example.com'
-                  leftSection={<IconMail size={16} />}
-                  {...form.getInputProps('email')}
-                  disabled={isLoading}
-                  className='transition-all duration-200'
-                  styles={{
-                    input: {
-                      transition: 'all 0.2s ease',
-                      '&:focus': {
-                        borderColor: 'var(--mantine-color-violet-6)',
-                        boxShadow: '0 0 0 3px rgba(139, 92, 246, 0.25)',
-                      },
-                    },
-                  }}
-                />
+            <FormField
+              control={form.control}
+              name='confirmPassword'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <div className='relative'>
+                      <Lock className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500' />
+                      <Input
+                        className='pl-9'
+                        type='password'
+                        placeholder='Confirm your password'
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <PasswordInput
-                  label='Password'
-                  placeholder='Create a strong password'
-                  leftSection={<IconLock size={16} />}
-                  {...form.getInputProps('password')}
-                  disabled={isLoading}
-                  className='transition-all duration-200'
-                  styles={{
-                    input: {
-                      transition: 'all 0.2s ease',
-                      '&:focus': {
-                        borderColor: 'var(--mantine-color-violet-6)',
-                        boxShadow: '0 0 0 3px rgba(139, 92, 246, 0.25)',
-                      },
-                    },
-                  }}
-                />
+            <p className='text-sm text-gray-500'>
+              Password must be at least 8 characters and include uppercase, lowercase, and numbers
+            </p>
 
-                <PasswordInput
-                  label='Confirm Password'
-                  placeholder='Confirm your password'
-                  leftSection={<IconLock size={16} />}
-                  {...form.getInputProps('confirmPassword')}
-                  disabled={isLoading}
-                  className='transition-all duration-200'
-                  styles={{
-                    input: {
-                      transition: 'all 0.2s ease',
-                      '&:focus': {
-                        borderColor: 'var(--mantine-color-violet-6)',
-                        boxShadow: '0 0 0 3px rgba(139, 92, 246, 0.25)',
-                      },
-                    },
-                  }}
-                />
+            <Button
+              type='submit'
+              className='w-full bg-violet-600 hover:bg-violet-700'
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className='flex items-center gap-2'>
+                  <div className='h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent' />
+                  Creating account...
+                </div>
+              ) : (
+                'Create Account'
+              )}
+            </Button>
+          </form>
+        </Form>
 
-                <Text size='xs' c='dimmed' className='mt-1'>
-                  Password must be at least 8 characters and include uppercase, lowercase, and
-                  numbers
-                </Text>
-
-                <Button
-                  type='submit'
-                  fullWidth
-                  loading={isLoading}
-                  className='bg-violet-600 hover:bg-violet-700 transition-colors duration-300 mt-4'
-                  loaderProps={{ color: 'white' }}
-                >
-                  Create Account
-                </Button>
-              </Stack>
-            </form>
-
-            <Divider label='Or continue with' labelPosition='center' my='lg' />
-
-            <Group grow mb='md' mt='md'>
-              <GoogleButton onClick={() => handleSocialSignup('google')} />
-              <GithubButton onClick={() => handleSocialSignup('github')} />
-            </Group>
-
-            <Text ta='center' size='sm' className='text-gray-500 mt-6'>
-              Already have an account?{' '}
-              <Anchor href='/auth/sign-in' className='transition-colors duration-300'>
-                Sign in
-              </Anchor>
-            </Text>
-          </Paper>
+        <div className='my-6'>
+          <Separator>Or continue with</Separator>
         </div>
-      )}
-    </Transition>
+
+        <div className='grid grid-cols-2 gap-4'>
+          <Button
+            variant='outline'
+            onClick={() => handleSocialSignup('google')}
+            disabled={isLoading}
+          >
+            <svg
+              className='mr-2 h-4 w-4'
+              aria-hidden='true'
+              focusable='false'
+              data-prefix='fab'
+              data-icon='google'
+              role='img'
+              xmlns='http://www.w3.org/2000/svg'
+              viewBox='0 0 488 512'
+            >
+              <path
+                fill='currentColor'
+                d='M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z'
+              ></path>
+            </svg>
+            Google
+          </Button>
+          <Button
+            variant='outline'
+            onClick={() => handleSocialSignup('github')}
+            disabled={isLoading}
+          >
+            <Github className='mr-2 h-4 w-4' />
+            GitHub
+          </Button>
+        </div>
+
+        <p className='mt-6 text-center text-sm text-gray-500'>
+          Already have an account?{' '}
+          <a href='/auth/sign-in' className='font-medium text-violet-600 hover:text-violet-500'>
+            Sign in
+          </a>
+        </p>
+      </CardContent>
+    </Card>
   );
 }
