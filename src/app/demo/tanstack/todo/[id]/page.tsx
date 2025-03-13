@@ -5,28 +5,31 @@ import { Hydrate } from '@/utils/react-query/hydrate-client';
 import { dehydrate } from '@tanstack/react-query';
 import { Metadata } from 'next';
 
-type Props = {
-  params: { _id: string };
+type PageProps = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const todoId = parseInt(params._id, 10);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const todoId = parseInt(id, 10);
 
   const todo = await fetchTodo(todoId);
 
   return {
-    title: `Todo: ${todo?.title || 'Todo Details'}`,
-    description: todo?.completed ? 'Completed task' : 'Pending task',
+    title: `Todo: ${todo?.title || "Todo Details"}`,
+    description: todo?.completed ? "Completed task" : "Pending task",
     openGraph: {
-      title: `Todo: ${todo?.title || 'Todo Details'}`,
-      description: todo?.completed ? 'Completed task' : 'Pending task',
+      title: `Todo: ${todo?.title || "Todo Details"}`,
+      description: todo?.completed ? "Completed task" : "Pending task",
     },
   };
 }
 
-export default async function TodoPage({ params }: Props) {
+export default async function TodoPage({ params }: PageProps ) {
+  const { id } = await params;
   const queryClient = getQueryClient();
-  const todoId = parseInt(params._id, 10);
+  const todoId = parseInt(id, 10);
 
   await queryClient.prefetchQuery({
     queryKey: ['todo', todoId],
