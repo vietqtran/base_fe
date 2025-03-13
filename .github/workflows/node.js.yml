@@ -1,4 +1,4 @@
-name: CI
+name: Node.js CI
 
 on:
   push:
@@ -26,8 +26,9 @@ jobs:
     - name: Enable Corepack
       run: corepack enable
       
-    - name: Create .yarnrc.yml
-      run: echo "nodeLinker: node-modules" > .yarnrc.yml
+    - name: Create yarnrc file
+      run: |
+        echo "nodeLinker: node-modules" > .yarnrc.yml
     
     - name: Install dependencies
       run: yarn install --immutable
