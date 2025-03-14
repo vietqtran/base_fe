@@ -16,7 +16,9 @@
       "**/package-lock.json",
       "**/yarn.lock",
       "**/.yarn/**",
-      "**/.next"
+      "**/.next",
+      "cypress.config.ts",
+      "**/cypress/**"
     ]
   },
   "formatter": {
@@ -38,7 +40,8 @@
       "**/package-lock.json",
       "**/yarn.lock",
       "**/.yarn/**",
-      "**/.next"
+      "**/.next",
+      "cypress.config.ts"
     ]
   },
   "organizeImports": {
@@ -98,7 +101,6 @@
         "noCatchAssign": "error",
         "noClassAssign": "error",
         "noCompareNegZero": "error",
-        "noConsole": "warn",
         "noControlCharactersInRegex": "error",
         "noDebugger": "error",
         "noDuplicateCase": "error",
@@ -132,7 +134,9 @@
       "**/package-lock.json",
       "**/yarn.lock",
       "**/.yarn/**",
-      "**/.next"
+      "**/.next",
+      "cypress.config.ts",
+      "**/cypress/**"
     ]
   },
   "javascript": {
