@@ -1,276 +1,237 @@
 'use client';
 
-import { useDevice } from '@/hooks';
-import {
-  Alert,
-  Anchor,
-  Button,
-  Divider,
-  Group,
-  Paper,
-  PasswordInput,
-  SimpleGrid,
-  Stack,
-  Text,
-  TextInput,
-  Title,
-  Transition,
-} from '@mantine/core';
-import { useForm, zodResolver } from '@mantine/form';
-import { IconAlertCircle, IconLock, IconMail, IconUser, IconUserPlus } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
-import * as z from 'zod';
-import { GithubButton, GoogleButton } from '../common/Button/Social';
+import type React from 'react';
 
-const signupSchema = z
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  confirmPasswordValidation,
+  emailValidation,
+  nameValidation,
+  passwordValidation,
+} from '@/constants/validate';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { z } from 'zod';
+
+const signUpSchema = z
   .object({
-    firstName: z.string().min(2, { message: 'First name must be at least 2 characters' }),
-    lastName: z.string().min(2, { message: 'Last name must be at least 2 characters' }),
-    email: z.string().email({ message: 'Please enter a valid email address' }),
-    password: z
-      .string()
-      .min(8, { message: 'Password must be at least 8 characters' })
-      .regex(/[A-Z]/, {
-        message: 'Password must contain at least one uppercase letter',
-      })
-      .regex(/[a-z]/, {
-        message: 'Password must contain at least one lowercase letter',
-      })
-      .regex(/[0-9]/, { message: 'Password must contain at least one number' }),
-    confirmPassword: z.string(),
+    name: nameValidation,
+    email: emailValidation,
+    password: passwordValidation,
+    confirmPassword: confirmPasswordValidation,
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: 'Passwords do not match',
     path: ['confirmPassword'],
   });
 
-export default function SignUpForm() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
-  const { isMobile } = useDevice();
+type SignUpFormValues = z.infer<typeof signUpSchema>;
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+export function SignUpForm() {
+  const router = useRouter();
+  const [errors, setErrors] = useState<{
+    name?: string;
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+    general?: string;
+  }>({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm({
-    validate: zodResolver(signupSchema),
-    initialValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    },
-  });
-
-  async function onSubmit(values: typeof form.values) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setIsLoading(true);
-    setError(null);
+    setErrors({});
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    const formData = new FormData(event.currentTarget);
+    const formValues = {
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
+      confirmPassword: formData.get('confirmPassword') as string,
+    };
 
-      // router.push('/')
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message || 'Failed to create account. Please try again.');
-      } else {
-        setError('Failed to create account. Please try again.' + values);
-      }
-    } finally {
+    const validationResult = signUpSchema.safeParse(formValues);
+
+    if (!validationResult.success) {
+      const formattedErrors = {
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+      };
+
+      validationResult.error.errors.forEach((error) => {
+        const path = error.path[0] as keyof SignUpFormValues;
+        formattedErrors[path] = error.message;
+      });
+
+      setErrors(formattedErrors);
       setIsLoading(false);
+      return;
     }
-  }
 
-  async function handleSocialSignup(provider: string) {
-    setIsLoading(true);
-    setError(null);
+    // const result = await signUp(formData);
+    const result = { success: true, errors: {}, message: '' };
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message || `Failed to signup with ${provider}. Please try again.`);
-      } else {
-        setError(`Failed to signup with ${provider}. Please try again.`);
+    if (result.success) {
+      toast('Account created successfully!');
+      router.push('/sign-in');
+    } else {
+      setErrors(result.errors || {});
+      if (result.message) {
+        toast('An error occurred. Please try again.');
       }
-    } finally {
-      setIsLoading(false);
     }
+
+    setIsLoading(false);
   }
 
   return (
-    <Transition mounted={mounted} transition='fade' duration={400} timingFunction='ease'>
-      {(styles) => (
-        <div style={styles}>
-          <Paper
-            radius='lg'
-            p={isMobile ? 'md' : 'xl'}
-            withBorder
-            className='w-full bg-white/95 shadow-xl transition-all duration-300 hover:shadow-2xl'
-          >
-            <div className='mb-6 text-center'>
-              <div className='mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-violet-100'>
-                <IconUserPlus className='h-6 w-6 text-violet-600' />
-              </div>
-              <Title order={2} className='text-center mb-1 text-gray-800'>
-                Create an account
-              </Title>
-              <Text c='dimmed' size='sm' ta='center'>
-                Enter your details to sign up
-              </Text>
-            </div>
+    <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
+      <div className='space-y-2'>
+        <Label htmlFor='name' className='block text-sm font-medium text-[#313957]'>
+          Full Name
+        </Label>
+        <Input
+          autoFocus
+          id='name'
+          name='name'
+          type='text'
+          placeholder='John Doe'
+          className={`w-full rounded-md border ${
+            errors.name ? 'border-red-500' : 'border-[#d4d7e3]'
+          } bg-[#f7fbff] px-3 py-2 text-[#313957]`}
+        />
+        {errors.name && <p className='mt-1 text-xs text-red-500'>{errors.name}</p>}
+      </div>
 
-            {error && (
-              <Transition
-                mounted={!!error}
-                transition='slide-down'
-                duration={300}
-                timingFunction='ease'
-              >
-                {(styles) => (
-                  <Alert
-                    style={styles}
-                    icon={<IconAlertCircle size={16} />}
-                    title='Error'
-                    color='red'
-                    className='mb-4'
-                    variant='light'
-                  >
-                    {error}
-                  </Alert>
-                )}
-              </Transition>
-            )}
+      <div className='space-y-2'>
+        <Label htmlFor='email' className='block text-sm font-medium text-[#313957]'>
+          Email
+        </Label>
+        <Input
+          id='email'
+          name='email'
+          type='email'
+          placeholder='example@email.com'
+          className={`w-full rounded-md border ${
+            errors.email ? 'border-red-500' : 'border-[#d4d7e3]'
+          } bg-[#f7fbff] px-3 py-2 text-[#313957]`}
+        />
+        {errors.email && <p className='mt-1 text-xs text-red-500'>{errors.email}</p>}
+      </div>
 
-            <form onSubmit={form.onSubmit(onSubmit)}>
-              <Stack>
-                <SimpleGrid cols={{ base: 1, sm: 2 }}>
-                  <TextInput
-                    label='First Name'
-                    placeholder='John'
-                    leftSection={<IconUser size={16} />}
-                    {...form.getInputProps('firstName')}
-                    disabled={isLoading}
-                    className='transition-all duration-200'
-                    styles={{
-                      input: {
-                        transition: 'all 0.2s ease',
-                        '&:focus': {
-                          borderColor: 'var(--mantine-color-violet-6)',
-                          boxShadow: '0 0 0 3px rgba(139, 92, 246, 0.25)',
-                        },
-                      },
-                    }}
-                  />
-                  <TextInput
-                    label='Last Name'
-                    placeholder='Doe'
-                    leftSection={<IconUser size={16} />}
-                    {...form.getInputProps('lastName')}
-                    disabled={isLoading}
-                    className='transition-all duration-200'
-                    styles={{
-                      input: {
-                        transition: 'all 0.2s ease',
-                        '&:focus': {
-                          borderColor: 'var(--mantine-color-violet-6)',
-                          boxShadow: '0 0 0 3px rgba(139, 92, 246, 0.25)',
-                        },
-                      },
-                    }}
-                  />
-                </SimpleGrid>
+      <div className='space-y-2'>
+        <Label htmlFor='password' className='block text-sm font-medium text-[#313957]'>
+          Password
+        </Label>
+        <Input
+          id='password'
+          name='password'
+          type='password'
+          placeholder='••••••••'
+          className={`w-full rounded-md border ${
+            errors.password ? 'border-red-500' : 'border-[#d4d7e3]'
+          } bg-[#f7fbff] px-3 py-2 text-[#313957]`}
+        />
+        {errors.password && <p className='mt-1 text-xs text-red-500'>{errors.password}</p>}
+        <p className='text-xs text-gray-500'>
+          Password must be at least 8 characters with one uppercase letter and one number.
+        </p>
+      </div>
 
-                <TextInput
-                  label='Email'
-                  placeholder='name@example.com'
-                  leftSection={<IconMail size={16} />}
-                  {...form.getInputProps('email')}
-                  disabled={isLoading}
-                  className='transition-all duration-200'
-                  styles={{
-                    input: {
-                      transition: 'all 0.2s ease',
-                      '&:focus': {
-                        borderColor: 'var(--mantine-color-violet-6)',
-                        boxShadow: '0 0 0 3px rgba(139, 92, 246, 0.25)',
-                      },
-                    },
-                  }}
-                />
+      <div className='space-y-2'>
+        <Label htmlFor='confirmPassword' className='block text-sm font-medium text-[#313957]'>
+          Confirm Password
+        </Label>
+        <Input
+          id='confirmPassword'
+          name='confirmPassword'
+          type='password'
+          placeholder='••••••••'
+          className={`w-full rounded-md border ${
+            errors.confirmPassword ? 'border-red-500' : 'border-[#d4d7e3]'
+          } bg-[#f7fbff] px-3 py-2 text-[#313957]`}
+        />
+        {errors.confirmPassword && (
+          <p className='mt-1 text-xs text-red-500'>{errors.confirmPassword}</p>
+        )}
+      </div>
 
-                <PasswordInput
-                  label='Password'
-                  placeholder='Create a strong password'
-                  leftSection={<IconLock size={16} />}
-                  {...form.getInputProps('password')}
-                  disabled={isLoading}
-                  className='transition-all duration-200'
-                  styles={{
-                    input: {
-                      transition: 'all 0.2s ease',
-                      '&:focus': {
-                        borderColor: 'var(--mantine-color-violet-6)',
-                        boxShadow: '0 0 0 3px rgba(139, 92, 246, 0.25)',
-                      },
-                    },
-                  }}
-                />
-
-                <PasswordInput
-                  label='Confirm Password'
-                  placeholder='Confirm your password'
-                  leftSection={<IconLock size={16} />}
-                  {...form.getInputProps('confirmPassword')}
-                  disabled={isLoading}
-                  className='transition-all duration-200'
-                  styles={{
-                    input: {
-                      transition: 'all 0.2s ease',
-                      '&:focus': {
-                        borderColor: 'var(--mantine-color-violet-6)',
-                        boxShadow: '0 0 0 3px rgba(139, 92, 246, 0.25)',
-                      },
-                    },
-                  }}
-                />
-
-                <Text size='xs' c='dimmed' className='mt-1'>
-                  Password must be at least 8 characters and include uppercase, lowercase, and
-                  numbers
-                </Text>
-
-                <Button
-                  type='submit'
-                  fullWidth
-                  loading={isLoading}
-                  className='bg-violet-600 hover:bg-violet-700 transition-colors duration-300 mt-4'
-                  loaderProps={{ color: 'white' }}
-                >
-                  Create Account
-                </Button>
-              </Stack>
-            </form>
-
-            <Divider label='Or continue with' labelPosition='center' my='lg' />
-
-            <Group grow mb='md' mt='md'>
-              <GoogleButton onClick={() => handleSocialSignup('google')} />
-              <GithubButton onClick={() => handleSocialSignup('github')} />
-            </Group>
-
-            <Text ta='center' size='sm' className='text-gray-500 mt-6'>
-              Already have an account?{' '}
-              <Anchor href='/auth/sign-in' className='transition-colors duration-300'>
-                Sign in
-              </Anchor>
-            </Text>
-          </Paper>
+      {errors.general && (
+        <div className='rounded-md bg-red-50 p-3'>
+          <p className='text-sm text-red-500'>{errors.general}</p>
         </div>
       )}
-    </Transition>
+
+      <Button
+        type='submit'
+        disabled={isLoading}
+        className='w-full cursor-pointer rounded-md bg-[#162d3a] py-2.5 text-white hover:bg-[#122b31] focus:outline-none focus:ring-2 focus:ring-[#294957] focus:ring-offset-2'
+      >
+        {isLoading ? 'Creating account...' : 'Sign up'}
+      </Button>
+
+      <div className='relative'>
+        <div className='absolute inset-0 flex items-center'>
+          <div className='w-full border-t border-[#d4d7e3]'></div>
+        </div>
+        <div className='relative flex justify-center text-sm'>
+          <span className='bg-white px-4 text-[#8897ad]'>Or</span>
+        </div>
+      </div>
+
+      <div className='space-y-3'>
+        <button
+          type='button'
+          className='flex w-full cursor-pointer items-center justify-center gap-3 rounded-md border border-[#d4d7e3] bg-[#f7fbff] px-4 py-2 text-sm font-medium text-[#313957] hover:bg-[#f3f9fa]'
+          onClick={() => {
+            toast('Google sign-up would be triggered here.');
+          }}
+        >
+          <svg width='20' height='20' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
+            <path
+              d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z'
+              fill='#4285F4'
+            />
+            <path
+              d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z'
+              fill='#34A853'
+            />
+            <path
+              d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z'
+              fill='#FBBC05'
+            />
+            <path
+              d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z'
+              fill='#EA4335'
+            />
+          </svg>
+          Sign up with Google
+        </button>
+        <button
+          type='button'
+          className='flex w-full cursor-pointer items-center justify-center gap-3 rounded-md border border-[#d4d7e3] bg-[#f7fbff] px-4 py-2 text-sm font-medium text-[#313957] hover:bg-[#f3f9fa]'
+          onClick={() => {
+            toast('Facebook sign-up would be triggered here.');
+          }}
+        >
+          <svg
+            width='20'
+            height='20'
+            viewBox='0 0 24 24'
+            fill='#1877F2'
+            xmlns='http://www.w3.org/2000/svg'
+          >
+            <path d='M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z' />
+          </svg>
+          Sign up with Facebook
+        </button>
+      </div>
+    </form>
   );
 }
