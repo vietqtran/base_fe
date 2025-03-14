@@ -3,6 +3,7 @@ import './globals.css';
 
 import { Toaster } from '@/components/ui/sonner';
 import { TanstackQueryProviders } from '@/providers';
+import ParallelRouting from '@/providers/ParallelRouting';
 import React, { Suspense } from 'react';
 
 export const metadata: Metadata = {
@@ -33,16 +34,18 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
+  user,
+  admin,
 }: Readonly<{
-  children: React.ReactNode;
+  user: React.ReactNode;
+  admin: React.ReactNode;
 }>) {
   return (
     <html lang='en'>
       <body className='antialiased'>
         <Suspense fallback={null}>
           <TanstackQueryProviders>
-            {children}
+            <ParallelRouting admin={admin} user={user} />
             <Toaster />
           </TanstackQueryProviders>
         </Suspense>
