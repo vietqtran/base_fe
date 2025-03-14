@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 
+import { Toaster } from '@/components/ui/sonner';
 import { TanstackQueryProviders } from '@/providers';
 import React from 'react';
 
@@ -39,7 +40,10 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className='antialiased'>
-        <TanstackQueryProviders>{children}</TanstackQueryProviders>
+        <TanstackQueryProviders>
+          {children}
+          <Toaster />
+        </TanstackQueryProviders>
       </body>
     </html>
   );

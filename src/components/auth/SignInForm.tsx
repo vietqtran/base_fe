@@ -1,247 +1,187 @@
 'use client';
 
-import { useDevice } from '@/hooks';
-import { cn } from '@/lib/utils';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, Lock, Mail } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+import type React from 'react';
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
+import { Label } from '@/components/ui/label';
+import { emailValidation, passwordValidation } from '@/constants/validate';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
-const signinSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
+const signInSchema = z.object({
+  email: emailValidation,
+  password: passwordValidation,
 });
 
-type FormValues = z.infer<typeof signinSchema>;
+type SignInFormValues = z.infer<typeof signInSchema>;
 
-export default function SignInForm() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
-  const { isMobile } = useDevice();
+export function SignInForm() {
+  const router = useRouter();
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    general?: string;
+  }>({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(signinSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
-
-  async function onSubmit(values: FormValues) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setIsLoading(true);
-    setError(null);
+    setErrors({});
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // router.push('/')
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || 'Invalid email or password. Please try again.');
-      } else {
-        setError('Invalid email or password. Please try again.' + values);
-      }
-    } finally {
+    const formData = new FormData(event.currentTarget);
+    const formValues = {
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
+    };
+
+    const validationResult = signInSchema.safeParse(formValues);
+
+    if (!validationResult.success) {
+      const formattedErrors = {
+        email: '',
+        password: '',
+      };
+
+      validationResult.error.errors.forEach((error) => {
+        const path = error.path[0] as keyof SignInFormValues;
+        formattedErrors[path] = error.message;
+      });
+
+      setErrors(formattedErrors);
       setIsLoading(false);
+      return;
     }
-  }
 
-  async function handleSocialSignIn(provider: string) {
-    setIsLoading(true);
-    setError(null);
+    const result = { success: true, errors: {}, message: '' };
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // router.push('/')
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message || `Failed to sign in with ${provider}. Please try again.`);
-      } else {
-        setError(`Failed to sign in with ${provider}. Please try again.`);
+    if (result.success) {
+      toast('Signed in successfully!');
+      router.push('/dashboard');
+    } else {
+      setErrors(result.errors || {});
+      if (result.message) {
+        toast('An error occurred. Please try again.');
       }
-    } finally {
-      setIsLoading(false);
     }
-  }
 
-  if (!mounted) return null;
+    setIsLoading(false);
+  }
 
   return (
-    <div className='w-full max-w-md mx-auto'>
-      <Card
-        className={cn(
-          'w-full bg-white/95 shadow-xl transition-all duration-300 hover:shadow-2xl',
-          isMobile ? 'p-4' : 'p-6'
-        )}
+    <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
+      <div className='space-y-2'>
+        <Label htmlFor='email' className='block text-sm font-medium text-[#313957]'>
+          Email
+        </Label>
+        <Input
+          autoFocus
+          id='email'
+          name='email'
+          type='email'
+          placeholder='example@email.com'
+          className={`w-full rounded-md border ${
+            errors.email ? 'border-red-500' : 'border-[#d4d7e3]'
+          } bg-[#f7fbff] px-3 py-2 text-[#313957]`}
+        />
+        {errors.email && <p className='mt-1 text-xs text-red-500'>{errors.email}</p>}
+      </div>
+
+      <div className='space-y-2'>
+        <div className='flex items-center justify-between'>
+          <Label htmlFor='password' className='block text-sm font-medium text-[#313957]'>
+            Password
+          </Label>
+          <Link href='/auth/forgot' className='text-sm text-[#1e4ae9] hover:underline'>
+            Forgot Password?
+          </Link>
+        </div>
+        <Input
+          id='password'
+          name='password'
+          type='password'
+          placeholder='••••••••'
+          className={`w-full rounded-md border ${
+            errors.password ? 'border-red-500' : 'border-[#d4d7e3]'
+          } bg-[#f7fbff] px-3 py-2 text-[#313957]`}
+        />
+        {errors.password && <p className='mt-1 text-xs text-red-500'>{errors.password}</p>}
+      </div>
+
+      {errors.general && (
+        <div className='rounded-md bg-red-50 p-3'>
+          <p className='text-sm text-red-500'>{errors.general}</p>
+        </div>
+      )}
+
+      <Button
+        type='submit'
+        disabled={isLoading}
+        className='w-full cursor-pointer rounded-md bg-[#162d3a] py-2.5 text-white hover:bg-[#122b31] focus:outline-none focus:ring-2 focus:ring-[#294957] focus:ring-offset-2'
       >
-        <CardHeader className='space-y-1 text-center'>
-          <div className='mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-violet-100'>
-            <Mail className='h-6 w-6 text-violet-600' />
-          </div>
-          <CardTitle className='text-2xl font-semibold'>Welcome back</CardTitle>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <Alert variant='destructive' className='mb-6'>
-              <AlertCircle className='h-4 w-4' />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+        {isLoading ? 'Signing in...' : 'Sign in'}
+      </Button>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-              <FormField
-                control={form.control}
-                name='email'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <div className='relative'>
-                        <Mail className='absolute left-3 top-2.5 h-4 w-4 text-muted-foreground' />
-                        <Input
-                          placeholder='name@example.com'
-                          className='pl-10'
-                          disabled={isLoading}
-                          {...field}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+      <div className='relative'>
+        <div className='absolute inset-0 flex items-center'>
+          <div className='w-full border-t border-[#d4d7e3]'></div>
+        </div>
+        <div className='relative flex justify-center text-sm'>
+          <span className='bg-white px-4 text-[#8897ad]'>Or</span>
+        </div>
+      </div>
 
-              <FormField
-                control={form.control}
-                name='password'
-                render={({ field }) => (
-                  <FormItem>
-                    <div className='flex items-center justify-between'>
-                      <FormLabel>Password</FormLabel>
-                      <Button
-                        variant='link'
-                        size='sm'
-                        className='px-0 font-normal text-violet-600 hover:text-violet-700'
-                        disabled={isLoading}
-                      >
-                        Forgot password?
-                      </Button>
-                    </div>
-                    <FormControl>
-                      <div className='relative'>
-                        <Lock className='absolute left-3 top-2.5 h-4 w-4 text-muted-foreground' />
-                        <Input
-                          type='password'
-                          placeholder='Your password'
-                          className='pl-10'
-                          disabled={isLoading}
-                          {...field}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <Button
-                type='submit'
-                className='w-full bg-violet-600 hover:bg-violet-700 text-white'
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <span className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent'></span>
-                    Signing in...
-                  </>
-                ) : (
-                  'Sign in'
-                )}
-              </Button>
-            </form>
-          </Form>
-
-          <div className='relative my-6'>
-            <Separator />
-            <span className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-xs text-muted-foreground'>
-              Or continue with
-            </span>
-          </div>
-
-          <div className='space-y-3'>
-            <Button
-              variant='outline'
-              className='w-full'
-              onClick={() => handleSocialSignIn('google')}
-              disabled={isLoading}
-            >
-              <svg className='mr-2 h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
-                <path
-                  d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z'
-                  fill='#4285F4'
-                />
-                <path
-                  d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z'
-                  fill='#34A853'
-                />
-                <path
-                  d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z'
-                  fill='#FBBC05'
-                />
-                <path
-                  d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z'
-                  fill='#EA4335'
-                />
-              </svg>
-              Continue with Google
-            </Button>
-            <Button
-              variant='outline'
-              className='w-full'
-              onClick={() => handleSocialSignIn('github')}
-              disabled={isLoading}
-            >
-              <svg className='mr-2 h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
-                <path d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12' />
-              </svg>
-              Continue with GitHub
-            </Button>
-          </div>
-
-          <p className='text-sm text-center text-gray-500 mt-6'>
-            Don&apos;t have an account?{' '}
-            <Link
-              href='/auth/sign-up'
-              className='text-violet-600 hover:text-violet-700 transition-colors duration-300'
-            >
-              Sign up
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+      <div className='space-y-3'>
+        <button
+          type='button'
+          className='flex w-full cursor-pointer items-center justify-center gap-3 rounded-md border border-[#d4d7e3] bg-[#f7fbff] px-4 py-2 text-sm font-medium text-[#313957] hover:bg-[#f3f9fa]'
+          onClick={() => {
+            toast('Google sign-in would be triggered here.');
+          }}
+        >
+          <svg width='20' height='20' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
+            <path
+              d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z'
+              fill='#4285F4'
+            />
+            <path
+              d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z'
+              fill='#34A853'
+            />
+            <path
+              d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z'
+              fill='#FBBC05'
+            />
+            <path
+              d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z'
+              fill='#EA4335'
+            />
+          </svg>
+          Sign in with Google
+        </button>
+        <button
+          type='button'
+          className='flex w-full cursor-pointer items-center justify-center gap-3 rounded-md border border-[#d4d7e3] bg-[#f7fbff] px-4 py-2 text-sm font-medium text-[#313957] hover:bg-[#f3f9fa]'
+          onClick={() => {
+            toast('Facebook sign-in would be triggered here.');
+          }}
+        >
+          <svg
+            width='20'
+            height='20'
+            viewBox='0 0 24 24'
+            fill='#1877F2'
+            xmlns='http://www.w3.org/2000/svg'
+          >
+            <path d='M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z' />
+          </svg>
+          Sign in with Facebook
+        </button>
+      </div>
+    </form>
   );
 }
